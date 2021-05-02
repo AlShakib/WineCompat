@@ -28,6 +28,7 @@ PROGRAM_NAME=""
 PROGRAM_COMMENT=""
 PROGRAM_ICON_PATH=""
 IS_GAME="yes" # yes/no
+IS_DXVK="yes" # yes/no
 PROGRAM_DIR=""
 PROGRAM_EXE=""
 

@@ -4,7 +4,7 @@ source "common"
 
 prepare_wine_data() {
   print "Preparing data directory..."
-  env WINEARCH="${WINE_ARCH}" WINEPREFIX="${DATA_DIR}" "${WINE_BIN_DIR}/wineboot" -u
+  env WINEARCH="${WINE_ARCH}" WINEPREFIX="${DATA_DIR}" "${WINE_BIN_DIR}/wineboot" -u &>> "${LOG_FILE}"
   print_success "Wine data directory prepared."
 }
 
@@ -27,5 +27,51 @@ replace_symlink_with_directory() {
   mkdir "${WINDOWS_USER_DIR}/Templates"
 }
 
+download_and_setup_dxvk() {
+  if [[ "${IS_DXVK}" == "yes" ]]; then
+    print "Checking DXVK..."
+    LATEST_DXVK_RELEASE=$(curl --silent "https://api.github.com/repos/doitsujin/dxvk/releases/latest")
+    LATEST_DXVK_TAG_NAME=`echo "${LATEST_DXVK_RELEASE}" | jq .tag_name | sed -e 's/^"//'  -e 's/"$//'`
+    LATEST_DXVK_DOWNLOAD_URL=`echo "${LATEST_DXVK_RELEASE}" | grep "browser_download_url" | cut -d '"' -f 4`
+    if [[ "$(is_dxvk_exists)" == 0 ]]; then
+      if [[ -f "${CACHE_DIR}/dxvk/${LATEST_DXVK_TAG_NAME}.tar.gz" ]]; then
+        extract_dxvk "${LATEST_DXVK_TAG_NAME}"
+        setup_dxvk
+      else
+        print "Downloading dxvk..."
+        mkdir -p "${CACHE_DIR}/dxvk" &>> "${LOG_FILE}"
+        wget "${LATEST_DXVK_DOWNLOAD_URL}" -O "${CACHE_DIR}/dxvk/${LATEST_DXVK_TAG_NAME}.tar.gz" &>> "${LOG_FILE}"
+        print_success "Done"
+        extract_dxvk "${LATEST_DXVK_TAG_NAME}"
+        setup_dxvk
+      fi
+    else
+      setup_dxvk
+    fi
+  fi
+}
+
+is_dxvk_exists() {
+  if [[ -f "${DATA_DIR}/dxvk/${LATEST_DXVK_TAG_NAME}/setup_dxvk.sh" ]]; then
+    echo 1
+  else
+    echo 0
+  fi
+}
+
+extract_dxvk() {
+  print "Extracting DXVK..."
+  mkdir -p "${DATA_DIR}/dxvk/${LATEST_DXVK_TAG_NAME}" &>> "${LOG_FILE}"
+  tar -xf "${CACHE_DIR}/dxvk/${LATEST_DXVK_TAG_NAME}.tar.gz" --strip-components=1 -C "${DATA_DIR}/dxvk/${LATEST_DXVK_TAG_NAME}" &>> "${LOG_FILE}"
+  print_success "Done."
+}
+
+setup_dxvk() {
+  print "Setting up DXVK."
+  env WINEARCH="${WINE_ARCH}" WINEPREFIX="${DATA_DIR}" "${DATA_DIR}/dxvk/${LATEST_DXVK_TAG_NAME}/setup_dxvk.sh" install &>> "${LOG_FILE}"
+  print_success "Done"
+}
+
 prepare_wine_data
 replace_symlink_with_directory
+download_and_setup_dxvk
