@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+source "common"
+
+install() {
+  env WINEPREFIX="${PREFIX_DIR}" "${WINE_BIN}/wine" "${1}"
+}
+
+start() {
+  check_root_access
+  install "${1}"
+}
+
+start "${1}"

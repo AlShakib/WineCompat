@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+
+if [[ "${EUID}" == 0 ]]; then
+   echo "Don't use the sudo command or the root user to execute these scripts!"
+   exit 1
+fi
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+WINE_STANDALONE_URL="https://www.playonlinux.com/wine/binaries/phoenicis/upstream-linux-amd64/PlayOnLinux-wine-6.0-upstream-linux-amd64.tar.gz"
+WINE_VERSION="6.0-upstream-linux-amd64"
+
+TMP=$(dirname $(mktemp -u))
+RANDOM_DIR=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16 ; echo '')
+TEMP_DIR="$TMP/wine-compat/$RANDOM_DIR"
+
+CACHE_DIR="${HOME}/.cache/wine-compat"
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )";
+DATA_DIR="${SCRIPT_DIR}/data"
+
+WINE_DIR="${SCRIPT_DIR}/wine/${WINE_VERSION}"
+WINE_BIN="${WINE_DIR}/bin"
+WINE_ARCH="win64" # win32/win64
+
+PROGRAM_DIR=""
+PROGRAM_EXE=""
+
+LOG_DIR="${SCRIPT_DIR}/log"
+LOG_FILE="${LOG_DIR}/wine.log";
+
+mkdir -p "${LOG_DIR}"
+touch "${LOG_FILE}"
+
+grep -q '[^[:space:]]' < "$LOG_FILE" && echo -e "\n\n" >> "$LOG_FILE"
+echo -e "LOG DATE: $(date +%d.%m.%y\ -\ %H:%M)\n" >> "$LOG_FILE"
+
+# print <arg>
+print() {
+  echo -e "${NC}[+] ${1}${NC}"
+  echo -e "[+] ${1}" &>> "$LOG_FILE"
+}
+
+# print_warning <arg>
+print_warning() {
+  echo -e "${NC}[${YELLOW}!${NC}] ${1}${NC}"
+  echo -e "[!] ${1}" &>> "$LOG_FILE"
+}
+
+# print_failed <arg>
+print_failed() {
+  echo -e "${NC}[${RED}x${NC}] ${1}${NC}"
+  echo -e "[x] ${1}" &>> "$LOG_FILE"
+}
+
+# print_success <arg>
+print_success() {
+  echo -e "${NC}[${GREEN}\xE2\x9C\x94${NC}] ${1}${NC}"
+  echo -e "[✔] ${1}" &>> "$LOG_FILE"
+}
+
+# print_suggestion <arg>
+print_suggestion() {
+  echo -e "${NC}[${BLUE}#${NC}] ${1}${NC}"
+  echo -e "[#] ${1}" &>> "$LOG_FILE"
+}
+
+# is_failed <success_message> <failed_message>
+is_failed() {
+  if [[ "$?" -eq 0 ]]; then
+    print_success "${1}"
+  else
+    print_failed "${2}"
+  fi
+}
+
+# is_warning <success_message> <warning_message>
+is_warning() {
+  if [[ "$?" -eq 0 ]]; then
+    print_success "${1}"
+  else
+    print_warning "${2}"
+  fi
+}
+
+is_wine_exists() {
+  if [[ -d "${WINE_DIR}" ]]; then
+    if [[ -n "$(find "${WINE_DIR}" -maxdepth 0 -type d -empty 2>/dev/null)" ]]; then
+      echo 0
+    else
+      echo 1
+    fi
+  else
+    echo 0
+  fi
+}
+
+download_and_extract_wine() {
+  print "Checking wine v${WINE_VERSION}..."
+  if [[ "$(is_wine_exists)" == 0 ]]; then
+    mkdir -p "${CACHE_DIR}/${WINE_VERSION}" &>> "${LOG_FILE}"
+    if [[ -f "${CACHE_DIR}/${WINE_VERSION}/${WINE_VERSION}.tar.gz" ]]; then
+      print "Cached wine v${WINE_VERSION} found."
+      extract_wine
+    else
+      print "Downloading wine v${WINE_VERSION}..."
+      wget "${WINE_STANDALONE_URL}" -O "${CACHE_DIR}/${WINE_VERSION}/${WINE_VERSION}.tar.gz" &>> "${LOG_FILE}"
+      extract_wine
+    fi
+  else
+    print "Wine v${WINE_VERSION} found. Skipping."
+  fi
+}
+
+extract_wine() {
+  print "Extracting wine v${WINE_VERSION}..."
+  mkdir -p "${WINE_DIR}" &>> "${LOG_FILE}"
+  tar -xf "${CACHE_DIR}/${WINE_VERSION}/${WINE_VERSION}.tar.gz" -C "${WINE_DIR}" &>> "${LOG_FILE}"
+  print_success "Extraction complete."
+}
+
+download_and_extract_wine

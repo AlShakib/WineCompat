@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+source "common"
+
+start_program() {
+  env WINEPREFIX="${PREFIX_DIR}" WINEDEBUG=fps "${WINE_BIN}/wine" "${PROGRAM_EXE}" 2>&1 |\
+    tee /dev/stderr | sed -u -n -e '/trace/ s/.*approx //p' |
+    osd_cat --lines=1 --font="lucidasanstypewriter-bold-18" --color=yellow
+}
+
+start() {
+  check_root_access
+  if [[ "${1}" == "cfg" ]]; then
+    env WINEPREFIX="${PREFIX_DIR}" "${WINE_BIN}/winecfg"
+  else
+    start_program
+  fi
+}
+
+start "${1}"

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+GAME_NAME="GTA San Andreas"
+GAME_SCRIPT="start"
+GAME_ICON="icon.png"
