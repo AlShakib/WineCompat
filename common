@@ -11,9 +11,6 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-WINE_STANDALONE_URL="https://www.playonlinux.com/wine/binaries/phoenicis/upstream-linux-amd64/PlayOnLinux-wine-6.0-upstream-linux-amd64.tar.gz"
-WINE_VERSION="6.0-upstream-linux-amd64"
-
 TMP=$(dirname $(mktemp -u))
 RANDOM_DIR=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16 ; echo '')
 TEMP_DIR="$TMP/wine-compat/$RANDOM_DIR"
@@ -21,14 +18,37 @@ TEMP_DIR="$TMP/wine-compat/$RANDOM_DIR"
 CACHE_DIR="${HOME}/.cache/wine-compat"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )";
+START_SCRIPT="${SCRIPT_DIR}/start"
+
 DATA_DIR="${SCRIPT_DIR}/data"
 
 WINE_DIR="${SCRIPT_DIR}/wine/${WINE_VERSION}"
-WINE_BIN="${WINE_DIR}/bin"
+WINE_BIN_DIR="${WINE_DIR}/bin"
 WINE_ARCH="win64" # win32/win64
+WINETRICKS="${WINE_BIN_DIR}/winetricks"
 
+######################## PROGRAM DETAILS ######################################
+
+PROGRAM_NAME=""
+PROGRAM_COMMENT=""
+PROGRAM_ICON_PATH=""
+IS_GAME="yes" # yes/no
 PROGRAM_DIR=""
 PROGRAM_EXE=""
+
+###############################################################################
+
+
+
+###################### WINE DOWNLOAD URLS #####################################
+
+WINE_STANDALONE_URL="https://www.playonlinux.com/wine/binaries/phoenicis/upstream-linux-amd64/PlayOnLinux-wine-6.0-upstream-linux-amd64.tar.gz"
+WINE_VERSION="6.0-upstream-linux-amd64"
+WINETRICKS_URL="https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks"
+
+###############################################################################
+
+
 
 LOG_DIR="${SCRIPT_DIR}/log"
 LOG_FILE="${LOG_DIR}/wine.log";
@@ -123,4 +143,21 @@ extract_wine() {
   print_success "Extraction complete."
 }
 
+download_winetricks() {
+  print "Checking winetricks..."
+  if [[ ! -f "${WINETRICKS}" ]]; then
+    wget "${WINETRICKS_URL}" -O "${WINE_BIN_DIR}/winetricks" &>> "${LOG_FILE}"
+    chmod +x "${WINETRICKS}"
+  fi
+  print_success "Done"
+}
+
+switch_to_temp_home() {
+  REAL_HOME="${HOME}"
+  HOME="${SCRIPT_DIR}/data"
+  mkdir -p "${HOME}"
+}
+
 download_and_extract_wine
+download_winetricks
+switch_to_temp_home

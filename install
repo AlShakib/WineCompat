@@ -3,12 +3,7 @@
 source "common"
 
 install() {
-  env WINEPREFIX="${PREFIX_DIR}" "${WINE_BIN}/wine" "${1}"
+  env WINEARCH="${WINE_ARCH}" WINEPREFIX="${DATA_DIR}" "${WINE_BIN_DIR}/wine" "${1}"
 }
 
-start() {
-  check_root_access
-  install "${1}"
-}
-
-start "${1}"
+install "${1}"

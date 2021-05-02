@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 
-GAME_NAME="GTA San Andreas"
-GAME_SCRIPT="start"
-GAME_ICON="icon.png"
+source "common"
+
+mkdir -p "${REAL_HOME}/.local/share/applications"
+cat > "${REAL_HOME}/.local/share/applications/${PROGRAM_NAME}.desktop" << EOL
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name="${PROGRAM_NAME}"
+Comment="${PROGRAM_COMMENT}"
+Path="${SCRIPT_DIR}"
+Exec="${START_SCRIPT}"
+Icon="${PROGRAM_ICON_PATH}"
+Terminal=false
+Categories=Game;
+EOL

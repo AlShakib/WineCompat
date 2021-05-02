@@ -2,9 +2,10 @@
 
 source "common"
 
-create_wine_prefix() {
-  print "Preparing data directory"
-  env WINEARCH="${WINE_ARCH}" WINEPREFIX="${DATA_DIR}" "${WINE_BIN}/wineboot" -u
+prepare_wine_data() {
+  print "Preparing data directory..."
+  env WINEARCH="${WINE_ARCH}" WINEPREFIX="${DATA_DIR}" "${WINE_BIN_DIR}/wineboot" -u
+  print_success "Wine data directory prepared."
 }
 
 replace_symlink_with_directory() {
@@ -26,9 +27,5 @@ replace_symlink_with_directory() {
   mkdir "${WINDOWS_USER_DIR}/Templates"
 }
 
-start() {
-  create_wine_prefix
-  replace_symlink_with_directory
-}
-
-start
+prepare_wine_data
+replace_symlink_with_directory

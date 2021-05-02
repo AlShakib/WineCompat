@@ -2,16 +2,21 @@
 
 source "common"
 
-start_program() {
-  env WINEPREFIX="${PREFIX_DIR}" WINEDEBUG=fps "${WINE_BIN}/wine" "${PROGRAM_EXE}" 2>&1 |\
+start_game() {
+  env WINEPREFIX="${PREFIX_DIR}" WINEDEBUG=fps "${WINE_BIN_DIR}/wine" "${PROGRAM_EXE}" 2>&1 |\
     tee /dev/stderr | sed -u -n -e '/trace/ s/.*approx //p' |
     osd_cat --lines=1 --font="lucidasanstypewriter-bold-18" --color=yellow
 }
 
+start_program() {
+  env WINEPREFIX="${PREFIX_DIR}" WINEDEBUG=fps "${WINE_BIN_DIR}/wine" "${PROGRAM_EXE}"
+}
+
 start() {
-  check_root_access
   if [[ "${1}" == "cfg" ]]; then
-    env WINEPREFIX="${PREFIX_DIR}" "${WINE_BIN}/winecfg"
+    env WINEARCH="${WINE_ARCH}" WINEPREFIX="${DATA_DIR}" "${WINE_BIN_DIR}/winecfg"
+  elif [[ "${IS_GAME}" == "yes" ]]; then
+    start_game
   else
     start_program
   fi
