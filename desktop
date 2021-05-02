@@ -7,11 +7,11 @@ cat > "${REAL_HOME}/.local/share/applications/${PROGRAM_NAME}.desktop" << EOL
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name="${PROGRAM_NAME}"
-Comment="${PROGRAM_COMMENT}"
-Path="${SCRIPT_DIR}"
-Exec="${START_SCRIPT}"
-Icon="${PROGRAM_ICON_PATH}"
+Name=${PROGRAM_NAME}
+Comment=${PROGRAM_COMMENT}
+Path=${SCRIPT_DIR}
+Exec=${START_SCRIPT}
+Icon=${PROGRAM_ICON_PATH}
 Terminal=false
 Categories=Game;
 EOL
