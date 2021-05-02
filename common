@@ -36,7 +36,7 @@ PROGRAM_EXE=""
 ###################### WINE DOWNLOAD URLS #####################################
 
 WINE_STANDALONE_URL="https://www.playonlinux.com/wine/binaries/phoenicis/upstream-linux-amd64/PlayOnLinux-wine-6.0-upstream-linux-amd64.tar.gz"
-WINE_VERSION="6.5-upstream-linux-amd64"
+WINE_VERSION="6.0-upstream-linux-amd64"
 WINETRICKS_URL="https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks"
 
 ###############################################################################
