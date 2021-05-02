@@ -44,6 +44,7 @@ WINETRICKS_URL="https://raw.githubusercontent.com/Winetricks/winetricks/master/s
 
 WINE_DIR="${SCRIPT_DIR}/wine/${WINE_VERSION}"
 WINE_BIN_DIR="${WINE_DIR}/bin"
+PATH="${WINE_BIN_DIR}":$PATH
 WINE_ARCH="win64" # win32/win64
 WINETRICKS="${WINE_BIN_DIR}/winetricks"
 
