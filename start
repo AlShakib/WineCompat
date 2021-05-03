@@ -3,15 +3,19 @@
 source "common"
 
 start_game() {
+  cd "${PROGRAM_DIR}"
   local RESOLUTION="$(xrandr -q | awk -F'current' -F',' 'NR==1 {gsub("( |current)","");print $2}')"
   env WINEPREFIX="${DATA_DIR}" WINEDEBUG=fps "${WINE_BIN_DIR}/wine" "${PROGRAM_EXE}" 2>&1 |\
     tee /dev/stderr | sed -u -n -e '/trace/ s/.*approx //p' |
     osd_cat --lines=1 --font="lucidasanstypewriter-bold-18" --color=yellow
   xrandr -s "$RESOLUTION"
+  cd "${OLDPWD}"
 }
 
 start_program() {
+  cd "${PROGRAM_DIR}"
   env WINEPREFIX="${DATA_DIR}" WINEDEBUG=fps "${WINE_BIN_DIR}/wine" "${PROGRAM_EXE}" &>> "${LOG_FILE}"
+  cd "${OLDPWD}"
 }
 
 start() {
