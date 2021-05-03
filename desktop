@@ -15,3 +15,4 @@ Icon=${PROGRAM_ICON_PATH}
 Terminal=false
 Categories=Game;
 EOL
+update-desktop-database "${REAL_HOME}/.local/share/applications"
